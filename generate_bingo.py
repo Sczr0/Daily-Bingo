@@ -7,16 +7,46 @@ import os
 # 定义颜色
 COLORS = ["红", "蓝", "黑", "绿", "黄", "紫", "白"]
 
-# 生成5x5网格
+# 生成5x5网格，并确保至少有一个五连钩
 def generate_grid():
-    grid = []
-    for i in range(5):
-        row = []
-        for j in range(5):
-            color = random.choice(COLORS)
-            row.append({"x": i, "y": j, "color": color})
-        grid.append(row)
+    while True:
+        grid = []
+        for i in range(5):
+            row = []
+            for j in range(5):
+                color = random.choice(COLORS)
+                # 黑格默认勾选，其他格随机勾选
+                checked = color == "黑" or random.choice([True, False])
+                row.append({"x": i, "y": j, "color": color, "checked": checked})
+            grid.append(row)
+        
+        # 检查是否至少有一个五连钩
+        if has_five_in_a_row(grid):
+            break
+    
     return grid
+
+# 检查是否至少有一个五连钩
+def has_five_in_a_row(grid):
+    # 检查行
+    for row in grid:
+        if all(cell["checked"] for cell in row):
+            return True
+    
+    # 检查列
+    for j in range(5):
+        if all(grid[i][j]["checked"] for i in range(5)):
+            return True
+    
+    # 检查主对角线
+    if all(grid[i][i]["checked"] for i in range(5)):
+        return True
+    
+    # 检查副对角线
+    if all(grid[i][4 - i]["checked"] for i in range(5)):
+        return True
+    
+    return False
 
 # 生成宾果题目图片（仅颜色块）
 def generate_bingo_image(grid, date_str):
