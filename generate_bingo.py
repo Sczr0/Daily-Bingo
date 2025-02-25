@@ -92,6 +92,7 @@ def check_total_checked(grid):
 
 # 生成5x5网格，并确保符合所有规则
 def generate_grid():
+    global MAX_CHECKED  # 在函数内部声明为全局变量
     while True:
         grid = []
         for i in range(5):
