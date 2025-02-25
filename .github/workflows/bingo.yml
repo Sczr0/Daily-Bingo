@@ -1,34 +1,37 @@
-name: 每日宾果题目生成
+name: Daily Bingo
 
 on:
   schedule:
     - cron: '0 16 * * *'  # UTC时间16:00（北京时间0:00）
-  workflow_dispatch:  # 允许手动触发
+  workflow_dispatch:
 
 jobs:
   generate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: 设置Python环境
-        uses: actions/setup-python@v4
+      
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
         with:
-          python-version: '3.10'
-
-      - name: 安装依赖
+          toolchain: stable
+          profile: minimal
+          override: true
+      
+      - name: Install dependencies
         run: |
-          pip install Pillow jinja2
+          sudo apt-get install -y libfontconfig-dev
+          cargo install --locked serde image imageproc rusttype chrono rand log
 
-      - name: 生成题目
-        run: python generate_bingo.py
-
-      - name: 提交更新
+      - name: Run generator
+        run: cargo run --release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUST_LOG: info
+
+      - name: Commit results
         run: |
-          git config --global user.name "GitHub Bot"
-          git config --global user.email "bot@example.com"
-          git add .
-          git commit -m "每日更新宾果题目"
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add data/
+          git commit -m "Update daily bingo" || echo "No changes to commit"
           git push
