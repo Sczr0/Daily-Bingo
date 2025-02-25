@@ -18,6 +18,9 @@ RULES = {
     "白": "无限制"
 }
 
+# 全局变量：勾数限制
+MAX_CHECKED = 15  # 可以在脚本中更改
+
 # 获取周围格子的坐标（包括八邻域）
 def get_neighbors(x, y):
     neighbors = []
@@ -82,6 +85,11 @@ def check_all_rules(grid):
                 return False
     return True
 
+# 检查总勾数是否在限制内
+def check_total_checked(grid):
+    total_checked = sum(1 for row in grid for cell in row if cell["checked"])
+    return total_checked <= MAX_CHECKED
+
 # 生成5x5网格，并确保符合所有规则
 def generate_grid():
     while True:
@@ -95,8 +103,8 @@ def generate_grid():
                 row.append({"x": i, "y": j, "color": color, "checked": checked})
             grid.append(row)
         
-        # 检查是否至少有一个五连钩且符合所有规则
-        if has_five_in_a_row(grid) and check_all_rules(grid):
+        # 检查是否至少有一个五连钩、符合所有规则且总勾数在限制内
+        if has_five_in_a_row(grid) and check_all_rules(grid) and check_total_checked(grid):
             break
     
     return grid
@@ -156,7 +164,8 @@ def generate_bingo_image(grid, date_str):
 def save_to_json(grid, date_str):
     data = {
         "date": date_str,
-        "grid": grid
+        "grid": grid,
+        "total_checked": sum(1 for row in grid for cell in row if cell["checked"])
     }
     os.makedirs("data", exist_ok=True)
     json_path = f"data/bingo_{date_str}.json"
@@ -165,6 +174,10 @@ def save_to_json(grid, date_str):
     return json_path
 
 if __name__ == "__main__":
+    # 可以在脚本中更改勾数限制
+    global MAX_CHECKED
+    MAX_CHECKED = 15  # 默认限制为15
+
     # 生成网格
     grid = generate_grid()
     
