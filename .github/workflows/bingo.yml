@@ -18,10 +18,13 @@ jobs:
           profile: minimal
           override: true
       
-      - name: Install dependencies
+      - name: Install system dependencies
         run: |
+          sudo apt-get update
           sudo apt-get install -y libfontconfig-dev
-          cargo install --locked serde image imageproc rusttype chrono rand log
+
+      - name: Build project
+        run: cargo build --release
 
       - name: Run generator
         run: cargo run --release
