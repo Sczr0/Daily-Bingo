@@ -19,7 +19,7 @@ RULES = {
 }
 
 # 全局变量：勾数限制
-MAX_CHECKED = 15  # 可以在脚本中更改
+MAX_CHECKED = 15  # 默认限制为15
 
 # 获取周围格子的坐标（包括八邻域）
 def get_neighbors(x, y):
@@ -176,7 +176,6 @@ def save_to_json(grid, date_str):
 
 if __name__ == "__main__":
     # 可以在脚本中更改勾数限制
-    global MAX_CHECKED
     MAX_CHECKED = 15  # 默认限制为15
 
     # 生成网格
