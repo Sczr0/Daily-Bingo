@@ -7,7 +7,82 @@ import os
 # 定义颜色
 COLORS = ["红", "蓝", "黑", "绿", "黄", "紫", "白"]
 
-# 生成5x5网格，并确保至少有一个五连钩
+# 定义规则
+RULES = {
+    "红": "周围至少勾选一个蓝格",
+    "蓝": "周围最多勾选两个黑格",
+    "黑": "必须勾选",
+    "绿": "所在行列勾选数相同",
+    "黄": "所在斜线勾选数相同",
+    "紫": "周围勾选数为奇数",
+    "白": "无限制"
+}
+
+# 获取周围格子的坐标（包括八邻域）
+def get_neighbors(x, y):
+    neighbors = []
+    for i in range(x - 1, x + 2):
+        for j in range(y - 1, y + 2):
+            if i == x and j == y:
+                continue  # 排除自己
+            if 0 <= i < 5 and 0 <= j < 5:
+                neighbors.append((i, j))
+    return neighbors
+
+# 检查红格规则：周围至少勾选一个蓝格
+def check_red_rule(grid, x, y):
+    neighbors = get_neighbors(x, y)
+    for i, j in neighbors:
+        if grid[i][j]["color"] == "蓝" and grid[i][j]["checked"]:
+            return True
+    return False
+
+# 检查蓝格规则：周围最多勾选两个黑格
+def check_blue_rule(grid, x, y):
+    neighbors = get_neighbors(x, y)
+    black_count = 0
+    for i, j in neighbors:
+        if grid[i][j]["color"] == "黑" and grid[i][j]["checked"]:
+            black_count += 1
+    return black_count <= 2
+
+# 检查绿格规则：所在行列勾选数相同
+def check_green_rule(grid, x, y):
+    row_count = sum(1 for cell in grid[x] if cell["checked"])
+    col_count = sum(1 for i in range(5) if grid[i][y]["checked"])
+    return row_count == col_count
+
+# 检查黄格规则：所在斜线勾选数相同
+def check_yellow_rule(grid, x, y):
+    diag1_count = sum(1 for i in range(5) if grid[i][i]["checked"])
+    diag2_count = sum(1 for i in range(5) if grid[i][4 - i]["checked"])
+    return diag1_count == diag2_count
+
+# 检查紫格规则：周围勾选数为奇数
+def check_purple_rule(grid, x, y):
+    neighbors = get_neighbors(x, y)
+    checked_count = sum(1 for i, j in neighbors if grid[i][j]["checked"])
+    return checked_count % 2 == 1
+
+# 检查所有规则
+def check_all_rules(grid):
+    for i in range(5):
+        for j in range(5):
+            cell = grid[i][j]
+            color = cell["color"]
+            if color == "红" and not check_red_rule(grid, i, j):
+                return False
+            if color == "蓝" and not check_blue_rule(grid, i, j):
+                return False
+            if color == "绿" and not check_green_rule(grid, i, j):
+                return False
+            if color == "黄" and not check_yellow_rule(grid, i, j):
+                return False
+            if color == "紫" and not check_purple_rule(grid, i, j):
+                return False
+    return True
+
+# 生成5x5网格，并确保符合所有规则
 def generate_grid():
     while True:
         grid = []
@@ -20,8 +95,8 @@ def generate_grid():
                 row.append({"x": i, "y": j, "color": color, "checked": checked})
             grid.append(row)
         
-        # 检查是否至少有一个五连钩
-        if has_five_in_a_row(grid):
+        # 检查是否至少有一个五连钩且符合所有规则
+        if has_five_in_a_row(grid) and check_all_rules(grid):
             break
     
     return grid
