@@ -36,9 +36,11 @@ jobs:
           "
 
       - name: 提交更新
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}  # 使用PAT
         run: |
           git config --global user.name "GitHub Bot"
           git config --global user.email "bot@example.com"
           git add .
           git commit -m "每日更新宾果题目"
-          git push
+          git push https://${{ secrets.PAT }}@github.com/${{ github.repository }}.git HEAD:main
