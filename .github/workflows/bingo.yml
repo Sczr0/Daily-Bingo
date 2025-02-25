@@ -1,4 +1,4 @@
-name: 宾果
+name: 每日宾果题目生成
 
 on:
   schedule:
@@ -17,30 +17,18 @@ jobs:
           python-version: '3.10'
 
       - name: 安装依赖
-        run: pip install jinja2
+        run: |
+          pip install Pillow jinja2
 
       - name: 生成题目
         run: python generate_bingo.py
 
-      - name: 渲染Markdown
-        run: |
-          python -c "
-          import json
-          from jinja2 import Template
-          with open('bingo.json', 'r', encoding='utf-8') as f:
-              data = json.load(f)
-          with open('README.md', 'r', encoding='utf-8') as f:
-              template = Template(f.read())
-          with open('README.md', 'w', encoding='utf-8') as f:
-              f.write(template.render(grid=data['grid'], winning_path=data['winning_path']))
-          "
-
       - name: 提交更新
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global user.name "GitHub Bot"
           git config --global user.email "bot@example.com"
           git add .
           git commit -m "每日更新宾果题目"
-          git push https://${{ secrets.PAT }}@github.com/${{ github.repository }}.git HEAD:main
+          git push
