@@ -6,6 +6,8 @@ use chrono::Local;
 use rand::{seq::SliceRandom, Rng};
 use log::{info, warn, debug};
 use std::{fs, path::Path, time::Instant};
+use chrono::{Utc, DateTime};
+use chrono_tz::Asia::Shanghai;
 
 // ----------------------------- 数据结构定义 -----------------------------
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
@@ -386,7 +388,11 @@ fn main() {
     fs::create_dir_all("data").expect("无法创建data目录");
 
     let (solutions, date, color_grid) = loop {
-        let date = Local::now().format("%Y-%m-%d").to_string();
+        let utc_time = Utc::now();
+        let beijing_time: DateTime<chrono_tz::Tz> = utc_time.with_timezone(&Shanghai);
+        let date = beijing_time.format("%Y-%m-%d").to_string();
+        
+        // 生成新的颜色网格
         let color_grid = generate_color_grid();
         info!("生成新题目布局:\n{}", format_grid_colors(&color_grid));
 
@@ -431,7 +437,6 @@ fn main() {
 
     info!("结果已保存至 data/ 和 data/{}/ 文件夹", date);
 }
-
 // ----------------------------- 工具函数 -----------------------------
 fn generate_color_grid() -> Vec<Vec<Color>> {
     let mut rng = rand::thread_rng();
