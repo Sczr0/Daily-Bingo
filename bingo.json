@@ -5,95 +5,95 @@
       {
         "x": 0,
         "y": 0,
-        "color": "红",
-        "checked": false
+        "color": "黑",
+        "checked": true
       },
       {
         "x": 0,
         "y": 1,
-        "color": "紫",
-        "checked": false
+        "color": "黑",
+        "checked": true
       },
       {
         "x": 0,
         "y": 2,
-        "color": "红",
+        "color": "白",
         "checked": false
       },
       {
         "x": 0,
         "y": 3,
-        "color": "红",
-        "checked": false
+        "color": "黑",
+        "checked": true
       },
       {
         "x": 0,
         "y": 4,
-        "color": "绿",
-        "checked": false
+        "color": "黑",
+        "checked": true
       }
     ],
     [
       {
         "x": 1,
         "y": 0,
-        "color": "紫",
+        "color": "白",
         "checked": false
       },
       {
         "x": 1,
         "y": 1,
-        "color": "紫",
-        "checked": false
-      },
-      {
-        "x": 1,
-        "y": 2,
-        "color": "紫",
-        "checked": false
-      },
-      {
-        "x": 1,
-        "y": 3,
         "color": "黑",
         "checked": true
       },
       {
         "x": 1,
+        "y": 2,
+        "color": "白",
+        "checked": false
+      },
+      {
+        "x": 1,
+        "y": 3,
+        "color": "紫",
+        "checked": false
+      },
+      {
+        "x": 1,
         "y": 4,
+        "color": "黑",
+        "checked": true
+      }
+    ],
+    [
+      {
+        "x": 2,
+        "y": 0,
+        "color": "白",
+        "checked": false
+      },
+      {
+        "x": 2,
+        "y": 1,
         "color": "蓝",
         "checked": false
-      }
-    ],
-    [
-      {
-        "x": 2,
-        "y": 0,
-        "color": "黄",
-        "checked": false
       },
       {
         "x": 2,
-        "y": 1,
+        "y": 2,
         "color": "黑",
         "checked": true
       },
       {
         "x": 2,
-        "y": 2,
-        "color": "绿",
-        "checked": false
-      },
-      {
-        "x": 2,
         "y": 3,
-        "color": "白",
+        "color": "红",
         "checked": false
       },
       {
         "x": 2,
         "y": 4,
-        "color": "白",
+        "color": "黄",
         "checked": false
       }
     ],
@@ -101,66 +101,66 @@
       {
         "x": 3,
         "y": 0,
-        "color": "黑",
-        "checked": true
+        "color": "红",
+        "checked": false
       },
       {
         "x": 3,
         "y": 1,
-        "color": "黄",
-        "checked": false
-      },
-      {
-        "x": 3,
-        "y": 2,
-        "color": "绿",
-        "checked": false
-      },
-      {
-        "x": 3,
-        "y": 3,
-        "color": "绿",
-        "checked": false
-      },
-      {
-        "x": 3,
-        "y": 4,
         "color": "蓝",
         "checked": false
-      }
-    ],
-    [
+      },
       {
-        "x": 4,
-        "y": 0,
+        "x": 3,
+        "y": 2,
+        "color": "蓝",
+        "checked": false
+      },
+      {
+        "x": 3,
+        "y": 3,
         "color": "紫",
         "checked": false
       },
       {
+        "x": 3,
+        "y": 4,
+        "color": "白",
+        "checked": false
+      }
+    ],
+    [
+      {
         "x": 4,
-        "y": 1,
+        "y": 0,
         "color": "黄",
         "checked": false
       },
       {
         "x": 4,
-        "y": 2,
+        "y": 1,
         "color": "白",
         "checked": false
       },
       {
         "x": 4,
+        "y": 2,
+        "color": "黑",
+        "checked": true
+      },
+      {
+        "x": 4,
         "y": 3,
-        "color": "黄",
+        "color": "红",
         "checked": false
       },
       {
         "x": 4,
         "y": 4,
-        "color": "红",
+        "color": "紫",
         "checked": false
       }
     ]
   ],
-  "winning_path": "第3列"
+  "winning_path": "第1行"
 }
