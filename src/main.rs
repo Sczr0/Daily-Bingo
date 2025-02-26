@@ -278,97 +278,152 @@ fn save_solutions_json(solutions: &[Grid], path: &str) {
 }
 
 fn save_grid_image(grid: &Grid, path: &str, show_checks: bool, date: &str, solutions_count: usize) {
-    let cell_size: u32 = 80;
-    let line_height: u32 = 25;
+    // ----------------------------- 参数配置 -----------------------------
+    let cell_size: u32 = 90;        // 单元格尺寸
+    let rule_font_size: f32 = 14.0; // 规则文字字号
+    let line_spacing: u32 = 22;     // 行间距
+    let margin: u32 = 15;           // 全局边距
+    let rule_column_width: u32 = 300; // 规则栏宽度
+
+    // ----------------------------- 颜色定义 -----------------------------
+    let background_color = Rgb([245u8, 245u8, 245u8]); // 浅灰背景
+    let rule_bg_color = Rgb([255u8, 255u8, 255u8]);    // 规则区白色背景
+    let text_color = Rgb([80u8, 80u8, 80u8]);          // 深灰文字
+    let grid_line_color = Rgb([210u8, 210u8, 210u8]);  // 网格线颜色
+    let check_color = Rgb([100u8, 100u8, 100u8]);      // 勾选标记颜色
+
+    // ----------------------------- 布局计算 -----------------------------
+    // 规则文本
+    let solution_count_str = format!("本日题目共有 {} 个解", solutions_count); // 将 format! 结果存储为局部变量
     let rules = vec![
         "红格周围至少有一个被勾选的格子。",
-        "蓝格周围被勾选的格子数量不得超过两个。",
+        "蓝格周围勾选的格子不得超过两个。",
+        "绿格所在行的勾选总数",
+        "须等于所在列的勾选总数。",
+        "黄格所在两条交叉对角线",
+        "（从黄格向四角延伸）的勾选总数必须相等。",
+        "紫格周围被勾选的格子数量须为奇数。",
         "黑格必须勾。",
-        "绿格所在行的勾选总数必须等于所在列的勾选总数。",
-        "黄格所在两条交叉对角线\n（从黄格向四角延伸）的勾选总数必须相等。",
-        "紫格周围被勾选的格子数量必须为奇数。",
-        "每个格子的颜色规则均需满足，\n五个勾连起来证明你不是智障",
-        &format!("{}", date),
-        &format!("本日题目共有 {} 个解", solutions_count)
-    ].join("\n");
+        "每个格子的颜色规则均需满足",
+        "五个勾连起来证明你不是智障",
+        "-----------------------------------",
+        &solution_count_str, // 使用局部变量的引用
+    ];
 
-    let text_line_count = rules.lines().count() as u32;
-    let text_height = text_line_count * line_height;
-    let grid_start_y = 10 + text_height + 10;
-    let img_height = grid_start_y + 5 * cell_size + 30;
-    
-    let mut img = ImageBuffer::from_pixel(400, img_height, Rgb([255u8, 255, 255]));
-
+    // 加载字体
     let font_data: &[u8] = include_bytes!("../fonts/font.ttf");
     let font = Font::try_from_bytes(font_data).unwrap();
-    let scale = Scale::uniform(15.0);
 
-    let text_color = Rgb([0u8, 0, 0]);
-    let mut y_pos = 10;
-    for line in rules.lines() {
-        draw_text_mut(
-            &mut img, text_color, 10, y_pos as i32, scale, &font, line
-        );
-        y_pos += line_height as i32;
+    // ----------------------------- 图像尺寸计算 -----------------------------
+    // 计算规则文本高度
+    let mut text_height = margin;
+    let scale = Scale::uniform(rule_font_size);
+    for line in &rules {
+        let line_count = line.chars().filter(|c| *c == '\n').count() + 1;
+        text_height += line_count as u32 * line_spacing;
     }
 
+    // 网格区域参数
+    let grid_area_height = 5 * cell_size + margin * 2;
+    let footer_height = 30; // 版权信息区域高度
+    
+    // 总图像尺寸
+    let img_width = rule_column_width + 5 * cell_size + margin * 3;
+    let img_height = text_height.max(grid_area_height) + footer_height;
+
+    // ----------------------------- 绘制图像 -----------------------------
+    let mut img = ImageBuffer::from_pixel(img_width, img_height, background_color);
+
+    // 绘制规则区背景
+    for x in 0..rule_column_width {
+        for y in 0..img_height {
+            img.put_pixel(x, y, rule_bg_color);
+        }
+    }
+
+    // 绘制规则文本
+    let mut y_pos = margin as i32;
+    for line in rules {
+        draw_text_mut(
+            &mut img,
+            text_color,
+            margin as i32 + 10,
+            y_pos,
+            scale,
+            &font,
+            line,
+        );
+        y_pos += line_spacing as i32 * (line.matches('\n').count() as i32 + 1);
+    }
+
+    // 绘制网格区域
+    let grid_start_x = rule_column_width + margin;
+    let grid_start_y = (img_height - grid_area_height) / 2; // 垂直居中
     for (i, row) in grid.0.iter().enumerate() {
         for (j, cell) in row.iter().enumerate() {
+            // 单元格颜色
             let color = match cell.color {
-                Color::Red => [255u8, 0, 0],
-                Color::Blue => [0u8, 0, 255],
-                Color::Black => [0u8, 0, 0],
-                Color::Green => [0u8, 255, 0],
-                Color::Yellow => [255u8, 255, 0],
-                Color::Purple => [128u8, 0, 128],
-                Color::White => [255u8, 255, 255],
+                Color::Red => [255, 50, 50],
+                Color::Blue => [70, 130, 180],
+                Color::Black => [40, 40, 40],
+                Color::Green => [50, 205, 50],
+                Color::Yellow => [255, 215, 0],
+                Color::Purple => [128, 0, 128],
+                Color::White => [255, 255, 255],
             };
-            
+
+            // 单元格坐标
+            let x = grid_start_x + j as u32 * cell_size;
+            let y = grid_start_y + i as u32 * cell_size;
+
+            // 绘制单元格背景
             for dx in 0..cell_size {
                 for dy in 0..cell_size {
-                    img.put_pixel(
-                        (j as u32) * cell_size + dx,
-                        grid_start_y + (i as u32) * cell_size + dy,
-                        Rgb(color),
-                    );
+                    img.put_pixel(x + dx, y + dy, Rgb(color));
                 }
             }
 
+            // 绘制单元格边框
+            for dx in 0..cell_size {
+                img.put_pixel(x + dx, y, grid_line_color); // 上边框
+                img.put_pixel(x + dx, y + cell_size - 1, grid_line_color); // 下边框
+            }
+            for dy in 0..cell_size {
+                img.put_pixel(x, y + dy, grid_line_color); // 左边框
+                img.put_pixel(x + cell_size - 1, y + dy, grid_line_color); // 右边框
+            }
+
+            // 绘制勾选标记
             if show_checks && cell.checked {
-                let x_start = (j as u32) * cell_size;
-                let y_start = grid_start_y + (i as u32) * cell_size;
-                // 定义线条颜色为灰色
-                let line_color = Rgb([169u8, 169, 169]);
-                // 绘制"x"号，通过增加偏移量来模拟加粗效果
-                for offset in -2..=2 { // 增加偏移量范围以达到加粗效果
-                    draw_line_segment_mut(
-                        &mut img,
-                        (
-                            x_start as f32 + 5.0 + offset as f32, 
-                            y_start as f32 + 5.0
-                        ),
-                        (
-                            (x_start + cell_size - 5) as f32 + offset as f32, 
-                            (y_start + cell_size - 5) as f32
-                        ),
-                        line_color,
-                    );
-                    draw_line_segment_mut(
-                        &mut img,
-                        (
-                            x_start as f32 + 5.0 + offset as f32, 
-                            (y_start + cell_size - 5) as f32
-                        ),
-                        (
-                            (x_start + cell_size - 5) as f32 + offset as f32, 
-                            y_start as f32 + 5.0
-                        ),
-                        line_color,
-                    );
-                }
+                draw_line_segment_mut(
+                    &mut img,
+                    (x as f32 + 10.0, y as f32 + 10.0),
+                    (x as f32 + cell_size as f32 - 10.0, y as f32 + cell_size as f32 - 10.0),
+                    check_color,
+                );
+                draw_line_segment_mut(
+                    &mut img,
+                    (x as f32 + 10.0, y as f32 + cell_size as f32 - 10.0),
+                    (x as f32 + cell_size as f32 - 10.0, y as f32 + 10.0),
+                    check_color,
+                );
             }
         }
     }
+
+    // ----------------------------- 版权信息 -----------------------------
+    let footer = format!("Generated by BingoSolver @ {}", date);
+    let footer_scale = Scale::uniform(12.0);
+    draw_text_mut(
+        &mut img,
+        text_color,
+        margin as i32 + 10, // 与规则文字左对齐
+        (img_height - footer_height + 8) as i32, // 保持在同一高度
+        footer_scale,
+        &font,
+        &footer
+    );
+
     img.save(path).unwrap();
 }
 
@@ -463,6 +518,7 @@ fn main() {
 
     info!("结果已保存至 data/ 和 data/{}/ 文件夹", date);
 }
+
 // ----------------------------- 工具函数 -----------------------------
 fn generate_color_grid() -> Vec<Vec<Color>> {
     let mut rng = rand::thread_rng();
