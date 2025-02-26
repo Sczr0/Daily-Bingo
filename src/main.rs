@@ -234,8 +234,10 @@ impl Solver {
 
     fn backtrack(&self, x: usize, y: usize, grid: &mut Grid, solutions: &mut Vec<Grid>, current_checked: usize) {
         if x == 5 {
-            // 最终检查全局规则和五连条件
-            if grid.check_all_rules() && grid.has_five_in_a_row() && current_checked <= self.max_checked {
+            if grid.check_all_rules() 
+                && grid.has_five_in_a_row() 
+                && current_checked <= self.max_checked 
+            {
                 if !solutions.iter().any(|s| s.0 == grid.0) {
                     info!("🎉 找到有效解！总勾选数: {}", current_checked);
                     solutions.push(grid.clone());
@@ -243,43 +245,24 @@ impl Solver {
             }
             return;
         }
-
+    
         let (next_x, next_y) = self.next_position(x, y);
         
         if self.color_grid[x][y] == Color::Black {
-            // 黑格必须勾选
             self.backtrack(next_x, next_y, grid, solutions, current_checked);
         } else {
-            // 尝试勾选
+            // 尝试勾选该单元格
             grid.0[x][y].checked = true;
             let new_checked = current_checked + 1;
             
-            // 检查局部规则（红格、蓝格、紫格）
-            let mut valid = new_checked <= self.max_checked;
-            if valid {
-                valid &= self.check_local_rules(x, y, grid);
-            }
-            
-            if valid {
+            // 仅保留总勾选数剪枝
+            if new_checked <= self.max_checked {
                 self.backtrack(next_x, next_y, grid, solutions, new_checked);
             }
-            grid.0[x][y].checked = false;
             
-            // 尝试不勾选
-            let mut valid_uncheck = self.check_local_rules(x, y, grid);
-            if valid_uncheck {
-                self.backtrack(next_x, next_y, grid, solutions, current_checked);
-            }
-        }
-    }
-
-    fn check_local_rules(&self, x: usize, y: usize, grid: &Grid) -> bool {
-        // 检查当前单元格的局部规则
-        match self.color_grid[x][y] {
-            Color::Red => grid.check_red_rule(x, y),
-            Color::Blue => grid.check_blue_rule(x, y),
-            Color::Purple => grid.check_purple_rule(x, y),
-            _ => true,
+            // 回溯，尝试不勾选
+            grid.0[x][y].checked = false;
+            self.backtrack(next_x, next_y, grid, solutions, current_checked);
         }
     }
 }
