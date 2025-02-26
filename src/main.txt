@@ -354,35 +354,19 @@ fn save_grid_image(grid: &Grid, path: &str, show_checks: bool, date: &str, solut
             if show_checks && cell.checked {
                 let x_start = (j as u32) * cell_size;
                 let y_start = grid_start_y + (i as u32) * cell_size;
-                // 定义线条颜色为灰色
-                let line_color = Rgb([169u8, 169, 169]);
-                // 绘制"x"号，通过增加偏移量来模拟加粗效果
-                for offset in -2..=2 { // 增加偏移量范围以达到加粗效果
-                    draw_line_segment_mut(
-                        &mut img,
-                        (
-                            x_start as f32 + 5.0 + offset as f32, 
-                            y_start as f32 + 5.0
-                        ),
-                        (
-                            (x_start + cell_size - 5) as f32 + offset as f32, 
-                            (y_start + cell_size - 5) as f32
-                        ),
-                        line_color,
-                    );
-                    draw_line_segment_mut(
-                        &mut img,
-                        (
-                            x_start as f32 + 5.0 + offset as f32, 
-                            (y_start + cell_size - 5) as f32
-                        ),
-                        (
-                            (x_start + cell_size - 5) as f32 + offset as f32, 
-                            y_start as f32 + 5.0
-                        ),
-                        line_color,
-                    );
-                }
+                
+                draw_line_segment_mut(
+                    &mut img,
+                    (x_start as f32 + 5.0, y_start as f32 + 5.0),
+                    ((x_start + cell_size - 5) as f32, (y_start + cell_size - 5) as f32),
+                    Rgb([255u8, 0, 0]),
+                );
+                draw_line_segment_mut(
+                    &mut img,
+                    (x_start as f32 + 5.0, (y_start + cell_size - 5) as f32),
+                    ((x_start + cell_size - 5) as f32, y_start as f32 + 5.0),
+                    Rgb([255u8, 0, 0]),
+                );
             }
         }
     }
@@ -486,9 +470,9 @@ fn generate_color_grid() -> Vec<Vec<Color>> {
         .map(|_| (0..5).map(|_| *colors.choose(&mut rng).unwrap()).collect())
         .collect();
 
-    // 强制至少有10个白格
+    // 强制至少有3个白格
     let mut white_count = grid.iter().flatten().filter(|c| **c == Color::White).count();
-    while white_count < 10 {
+    while white_count < 3 {
         let x = rng.gen_range(0..5);
         let y = rng.gen_range(0..5);
         if grid[x][y] != Color::White {
