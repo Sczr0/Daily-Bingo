@@ -97,7 +97,7 @@ impl Grid {
         let y = y as i32;
 
         // 向dir1方向延伸
-        let (mut cx, mut cy) = (x, y);
+        let (mut cx, mut cy) = (x as i32, y as i32);
         loop {
             if cx < 0 || cy < 0 || cx >= 5 || cy >= 5 { break; }
             cells.push((cx as usize, cy as usize));
@@ -106,7 +106,7 @@ impl Grid {
         }
 
         // 向dir2方向延伸（跳过中心点）
-        let (mut cx, mut cy) = (x + dir2.0, y + dir2.1);
+        let (mut cx, mut cy) = (x as i32, y as i32);
         loop {
             if cx < 0 || cy < 0 || cx >= 5 || cy >= 5 { break; }
             cells.push((cx as usize, cy as usize));
@@ -281,13 +281,13 @@ fn save_grid_image(grid: &Grid, path: &str, show_checks: bool, date: &str, solut
     let cell_size: u32 = 80;
     let line_height: u32 = 25;
     let rules = vec![
-        "红格周围至少勾一个",
-        "蓝格周围最多勾两个",
-        "黑格内必须勾",
-        "绿格所在行列勾数相同",
-        "黄格所在斜线勾数相同",
-        "紫格周围勾是奇数",
-        "五个勾连起来证明你不是智障",
+        "红格周围至少有一个被勾选的格子。",
+        "蓝格周围被勾选的格子数量不得超过两个。",
+        "黑格必须勾。",
+        "绿格所在行的勾选总数必须等于所在列的勾选总数。",
+        "黄格所在两条交叉对角线\n（从黄格向四角延伸）的勾选总数必须相等。",
+        "紫格周围被勾选的格子数量必须为奇数。",
+        "每个格子的颜色规则均需满足，\n五个勾连起来证明你不是智障",
         &format!("{}", date),
         &format!("本日题目共有 {} 个解", solutions_count)
     ].join("\n");
@@ -301,7 +301,7 @@ fn save_grid_image(grid: &Grid, path: &str, show_checks: bool, date: &str, solut
 
     let font_data: &[u8] = include_bytes!("../fonts/font.ttf");
     let font = Font::try_from_bytes(font_data).unwrap();
-    let scale = Scale::uniform(20.0);
+    let scale = Scale::uniform(15.0);
 
     let text_color = Rgb([0u8, 0, 0]);
     let mut y_pos = 10;
@@ -384,13 +384,20 @@ fn move_to_date_folder(date: &str) {
 
     for entry in fs::read_dir("data").unwrap() {
         let entry = entry.unwrap();
+        let path = entry.path();
+
+        // 仅处理文件，跳过目录
+        if !path.is_file() {
+            continue;
+        }
+
         let file_name = entry.file_name();
         let file_name_str = file_name.to_str().unwrap();
 
-        // 只移动非保留文件且非当前日期的文件
+        // 仅移动非保留文件（且不是当前日期的文件夹）
         if !keep_files.contains(&file_name_str) && file_name_str != date {
             let new_path = format!("{}/{}", date_folder, file_name_str);
-            fs::rename(entry.path(), new_path).unwrap();
+            fs::rename(&path, new_path).unwrap();
         }
     }
 }
