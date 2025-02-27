@@ -280,10 +280,10 @@ fn save_solutions_json(solutions: &[Grid], path: &str) {
 fn save_grid_image(grid: &Grid, path: &str, show_checks: bool, date: &str, solutions_count: usize) {
     // ----------------------------- 参数配置 -----------------------------
     let cell_size: u32 = 90;        // 单元格尺寸
-    let rule_font_size: f32 = 14.0; // 规则文字字号
+    let rule_font_size: f32 = 13.5; // 规则文字字号
     let line_spacing: u32 = 22;     // 行间距
-    let margin: u32 = 15;           // 全局边距
-    let rule_column_width: u32 = 300; // 规则栏宽度
+    let margin: u32 = 12;           // 全局边距
+    let rule_column_width: u32 = 310; // 规则栏宽度
 
     // ----------------------------- 颜色定义 -----------------------------
     let background_color = Rgb([245u8, 245u8, 245u8]); // 浅灰背景
@@ -296,6 +296,9 @@ fn save_grid_image(grid: &Grid, path: &str, show_checks: bool, date: &str, solut
     // 规则文本
     let solution_count_str = format!("本日题目共有 {} 个解", solutions_count); // 将 format! 结果存储为局部变量
     let rules = vec![
+        " ",
+        " ",
+        " ",
         "红格周围至少有一个被勾选的格子。",
         "蓝格周围勾选的格子不得超过两个。",
         "绿格所在行的勾选总数",
@@ -305,8 +308,10 @@ fn save_grid_image(grid: &Grid, path: &str, show_checks: bool, date: &str, solut
         "紫格周围被勾选的格子数量须为奇数。",
         "黑格必须勾。",
         "每个格子的颜色规则均需满足",
-        "五个勾连起来证明你不是智障",
+        "最终要把五个勾连起来，加油吧~",
         "-----------------------------------",
+        "周围指的是一圈八个格子，不包括自己",
+        "五连钩可以是横排竖排，以及两条对角线",
         &solution_count_str, // 使用局部变量的引用
     ];
 
@@ -477,7 +482,7 @@ fn main() {
         let color_grid = generate_color_grid();
         info!("生成新题目布局:\n{}", format_grid_colors(&color_grid));
 
-        let solver = Solver::new(color_grid.clone(), 15);
+        let solver = Solver::new(color_grid.clone(), 25);
         let solutions = solver.solve();
         
         if !solutions.is_empty() {
