@@ -19,6 +19,8 @@ enum Color {
     Yellow,
     Purple,
     White,
+    Orange,
+    Cyan,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -45,6 +47,27 @@ impl Grid {
                     neighbors.push((i, j));
                 }
             }
+        }
+        neighbors
+    }
+
+    fn get_four_neighbors(&self, x: usize, y: usize) -> Vec<(usize, usize)> {
+        let mut neighbors = Vec::new();
+        // 上
+        if x > 0 {
+            neighbors.push((x - 1, y));
+        }
+        // 下
+        if x < 4 {
+            neighbors.push((x + 1, y));
+        }
+        // 左
+        if y > 0 {
+            neighbors.push((x, y - 1));
+        }
+        // 右
+        if y < 4 {
+            neighbors.push((x, y + 1));
         }
         neighbors
     }
@@ -126,6 +149,29 @@ impl Grid {
         ok
     }
 
+    fn check_orange_rule(&self, x: usize, y: usize) -> bool {
+        let neighbors = self.get_neighbors(x, y);
+        let count = neighbors.iter().filter(|(i, j)| self.0[*i][*j].checked).count();
+        let ok = count % 2 == 0;
+        if !ok {
+            debug!("❌ 橙格({},{})规则不满足：周围勾选数{}不是偶数", x, y, count);
+        }
+        ok
+    }
+
+    fn check_cyan_rule(&self, x: usize, y: usize) -> bool {
+        let cell = &self.0[x][y];
+        if !cell.checked {
+            return true;
+        }
+        let neighbors = self.get_four_neighbors(x, y);
+        let has_checked = neighbors.iter().any(|(i, j)| self.0[*i][*j].checked);
+        if !has_checked {
+            debug!("❌ 青格({},{})勾选时周围上下左右无勾选格子", x, y);
+        }
+        has_checked
+    }
+
     fn check_all_rules(&self) -> bool {
         for i in 0..5 {
             for j in 0..5 {
@@ -136,6 +182,8 @@ impl Grid {
                     Color::Green => self.check_green_rule(i, j),
                     Color::Yellow => self.check_yellow_rule(i, j),
                     Color::Purple => self.check_purple_rule(i, j),
+                    Color::Orange => self.check_orange_rule(i, j),
+                    Color::Cyan => self.check_cyan_rule(i, j),
                     _ => true,
                 };
                 if !valid {
@@ -298,7 +346,6 @@ fn save_grid_image(grid: &Grid, path: &str, show_checks: bool, date: &str, solut
     let rules = vec![
         " ",
         " ",
-        " ",
         "红格周围至少有一个被勾选的格子。",
         "蓝格周围勾选的格子不得超过两个。",
         "绿格所在行的勾选总数",
@@ -306,6 +353,9 @@ fn save_grid_image(grid: &Grid, path: &str, show_checks: bool, date: &str, solut
         "黄格所在两条交叉对角线",
         "（从黄格向四角延伸）的勾选总数必须相等。",
         "紫格周围被勾选的格子数量须为奇数。",
+        "橙格周围勾选的格子数量须为偶数。",
+        "青格如果被勾选，则其上下左右（不包括对角）",
+        "至少有一个被勾选的格子。",
         "黑格必须勾。",
         "每个格子的颜色规则均需满足",
         "最终要把五个勾连起来，加油吧~",
@@ -375,6 +425,8 @@ fn save_grid_image(grid: &Grid, path: &str, show_checks: bool, date: &str, solut
                 Color::Yellow => [255, 215, 0],
                 Color::Purple => [128, 0, 128],
                 Color::White => [255, 255, 255],
+                Color::Orange => [255, 165, 0],
+                Color::Cyan => [0, 255, 255],
             };
 
             // 单元格坐标
@@ -529,7 +581,8 @@ fn generate_color_grid() -> Vec<Vec<Color>> {
     let mut rng = rand::thread_rng();
     let colors = vec![
         Color::Red, Color::Blue, Color::Black,
-        Color::Green, Color::Yellow, Color::Purple, Color::White,
+        Color::Green, Color::Yellow, Color::Purple, 
+        Color::White, Color::Orange, Color::Cyan,
     ];
     
     // 生成初始随机网格
@@ -561,6 +614,8 @@ fn format_grid_colors(grid: &[Vec<Color>]) -> String {
             Color::Yellow => "黄",
             Color::Purple => "紫",
             Color::White => "白",
+            Color::Orange => "橙",
+            Color::Cyan => "青",
         }).collect::<Vec<_>>().join(" ")
     }).collect::<Vec<_>>().join("\n")
 }
