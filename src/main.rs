@@ -590,9 +590,9 @@ fn generate_color_grid() -> Vec<Vec<Color>> {
         .map(|_| (0..5).map(|_| *colors.choose(&mut rng).unwrap()).collect())
         .collect();
 
-    // 强制至少有10个白格
+    // 强制至少有2个白格
     let mut white_count = grid.iter().flatten().filter(|c| **c == Color::White).count();
-    while white_count < 10 {
+    while white_count < 2 {
         let x = rng.gen_range(0..5);
         let y = rng.gen_range(0..5);
         if grid[x][y] != Color::White {
